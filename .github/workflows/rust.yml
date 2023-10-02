@@ -1,0 +1,57 @@
+name: Release
+
+permissions:
+    contents: write
+
+on:
+  push:
+    tags:
+      - v[0-9]+.*
+      
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUSTFLAGS: -D warnings
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          changelog: CHANGELOG.md
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-assets:
+    strategy:
+      matrix:
+        include: 
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          # - target: aarch64-unknown-linux-gnu
+          #   os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
+          - target: universal-apple-darwin
+            os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install apt packages
+        run: sudo apt update && sudo apt upgrade -y && sudo apt-get install pkg-config libssl-dev gcc-aarch64-linux-gnu
+        if: ${{ contains(matrix.target, 'linux') }}
+      - uses: actions/checkout@v4
+      - uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: ip2location
+          target: ${{ matrix.target }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checksum: sha256
+          tar: all
+          zip: windows

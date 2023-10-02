@@ -1,0 +1,17 @@
+[package]
+name = "ip2location"
+version = "0.1.0"
+authors = ["Zevaryx <zevaryx@gmail.com>"]
+edition = "2021"
+description = "An ip2location.io wrapper written in Rust"
+readme = "README.md"
+repository = "https://github.com/zevaryx/ip2location-rs"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "4.4.5", features = ["derive"] }
+reqwest = { version = "0.11.20", features = ["json"] }
+serde = { version = "1.0.188", features = ["serde_derive"] }
+tokio = { version = "1.32.0", features = ["full"] }
